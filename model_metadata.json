@@ -1,0 +1,68 @@
+{
+  "timestamp": "2026-05-13 10:08:03",
+  "best_model": {
+    "name": "Random Forest",
+    "type": "rf",
+    "filename": "brain_tumor_BEST_rf_model.sav",
+    "test_accuracy": 0.8016877637130801,
+    "test_accuracy_pct": 80.16877637130801
+  },
+  "random_forest": {
+    "train_accuracy": 0.9900914634146342,
+    "val_accuracy": 0.8080168776371308,
+    "test_accuracy": 0.8016877637130801,
+    "n_estimators": 200,
+    "max_depth": 20
+  },
+  "svm": {
+    "train_accuracy": 0.8711890243902439,
+    "val_accuracy": 0.7763713080168776,
+    "test_accuracy": 0.7848101265822784,
+    "kernel": "rbf",
+    "C": 10,
+    "gamma": "scale",
+    "n_support_vectors": 1403
+  },
+  "dataset": {
+    "classes": [
+      "glioma_tumor",
+      "meningioma_tumor",
+      "no_tumor",
+      "pituitary_tumor"
+    ],
+    "n_features": 18,
+    "train_samples": 2212,
+    "train_samples_balanced": 2624,
+    "val_samples": 474,
+    "test_samples": 474,
+    "split_ratio": {
+      "train": 0.7,
+      "val": 0.15,
+      "test": 0.15
+    },
+    "smote_applied": true
+  },
+  "feature_extraction": {
+    "method": "GLCM",
+    "features": [
+      "contrast_mean",
+      "contrast_std",
+      "contrast_range",
+      "dissimilarity_mean",
+      "dissimilarity_std",
+      "dissimilarity_range",
+      "homogeneity_mean",
+      "homogeneity_std",
+      "homogeneity_range",
+      "energy_mean",
+      "energy_std",
+      "energy_range",
+      "correlation_mean",
+      "correlation_std",
+      "correlation_range",
+      "ASM_mean",
+      "ASM_std",
+      "ASM_range"
+    ]
+  }
+}

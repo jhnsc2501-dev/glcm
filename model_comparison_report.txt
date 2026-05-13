@@ -1,0 +1,38 @@
+================================================================================
+BRAIN TUMOR CLASSIFICATION - MODEL COMPARISON REPORT
+================================================================================
+
+Generated: 2026-05-13 10:08:03
+
+--------------------------------------------------------------------------------
+DATASET INFORMATION
+--------------------------------------------------------------------------------
+Classes: glioma_tumor, meningioma_tumor, no_tumor, pituitary_tumor
+Features: 18 GLCM features
+Split Ratio: 70% train, 15% val, 15% test
+Training samples (original): 2212
+Training samples (after SMOTE): 2624
+Validation samples: 474
+Testing samples: 474
+
+--------------------------------------------------------------------------------
+RANDOM FOREST RESULTS
+--------------------------------------------------------------------------------
+Training Accuracy:   0.9901 (99.01%)
+Validation Accuracy: 0.8080 (80.80%)
+Testing Accuracy:    0.8017 (80.17%)
+Overfitting Gap:     18.84%
+
+--------------------------------------------------------------------------------
+SVM RESULTS
+--------------------------------------------------------------------------------
+Training Accuracy:   0.8712 (87.12%)
+Validation Accuracy: 0.7764 (77.64%)
+Testing Accuracy:    0.7848 (78.48%)
+Overfitting Gap:     8.64%
+Support Vectors:     1403
+
+================================================================================
+[BEST MODEL] Random Forest
+   Testing Accuracy: 0.8017 (80.17%)
+================================================================================
