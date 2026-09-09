@@ -880,7 +880,7 @@ def main_app():
         
         model_path = st.text_input(
             "Model Path",
-            value="models/brain_tumor_rf_glcm_model.sav",
+            value="brain_tumor_rf_glcm_model.sav",
             help="Path to your trained Random Forest model (.pkl or .sav file)"
         )
         
