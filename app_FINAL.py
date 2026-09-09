@@ -440,38 +440,21 @@ st.markdown("""
 
 # ==================== HELPER FUNCTIONS ====================
 
-def resolve_model_path(model_path):
-    """
-    Resolve model path — coba beberapa lokasi umum:
-    1. Path persis yang diberikan
-    2. Relatif terhadap direktori script ini (root repo)
-    3. Flat: nama file saja di root repo (semua file di folder yg sama)
-    """
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    candidates = [
-        model_path,
-        os.path.join(base_dir, model_path),
-        os.path.join(base_dir, os.path.basename(model_path)),
-    ]
-    for path in candidates:
-        if os.path.exists(path):
-            return path
-    return None
-
-
 @st.cache_resource
 def load_model(model_path):
-    """Load model — auto-detect path, support pickle"""
-    resolved = resolve_model_path(model_path)
-    if resolved is None:
-        return None
+    """Load the trained Random Forest model - supports both pickle and joblib"""
     try:
-        with open(resolved, 'rb') as f:
-            model = pickle.load(f)
+        with open(model_path, 'rb') as file:
+            model = pickle.load(file)
         return model
-    except Exception as e:
-        st.error(f"❌ Gagal load model: {str(e)}")
-        return None
+    except Exception as pickle_error:
+        try:
+            import joblib
+            model = joblib.load(model_path)
+            return model
+        except Exception as joblib_error:
+            st.error(f"❌ Error loading model: {str(pickle_error)}")
+            return None
 
 
 def extract_glcm_features(image, distances=[1], angles=[0, np.pi/4, np.pi/2, 3*np.pi/4]):
@@ -624,15 +607,8 @@ def developer_page():
         st.markdown("<div class='dev-photo-container'>", unsafe_allow_html=True)
         
         # Try to load profile photo
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        profile_photo_path = None
-        for ext in ['profil.jpeg', 'profil.jpg', 'profil.png']:
-            candidate = os.path.join(base_dir, ext)
-            if os.path.exists(candidate):
-                profile_photo_path = candidate
-                break
-
-        if profile_photo_path:
+        profile_photo_path = "profil.jpeg"
+        if os.path.exists(profile_photo_path):
             try:
                 profile_img = Image.open(profile_photo_path)
                 # Create circular image effect
@@ -653,6 +629,7 @@ def developer_page():
                 </div>
                 """, unsafe_allow_html=True)
         else:
+            st.info("💡 Place 'profil.jpeg' in the same folder to display photo")
             # Placeholder icon
             st.markdown("""
             <div style="text-align: center;">
@@ -661,7 +638,7 @@ def developer_page():
                             border-radius: 50%; display: flex; align-items: center; 
                             justify-content: center; font-size: 5rem; border: 5px solid #00ffff;
                             box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);">
-                    👩‍💻
+                    👨‍💻
                 </div>
             </div>
             """, unsafe_allow_html=True)
@@ -900,38 +877,12 @@ def main_app():
     # Sidebar
     with st.sidebar:
         st.markdown("### ⚙️ SYSTEM SETTINGS")
-
-        # ── Auto-detect semua file .sav di repo ──────────────────────────────
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        sav_files = []
-        for root, dirs, files in os.walk(base_dir):
-            # skip folder python cache
-            dirs[:] = [d for d in dirs if d not in ['__pycache__', '.git', 'venv', '.venv']]
-            for f in files:
-                if f.endswith('.sav') or f.endswith('.pkl'):
-                    rel = os.path.relpath(os.path.join(root, f), base_dir)
-                    sav_files.append(rel)
-
-        if sav_files:
-            # Default ke RF model kalau ada
-            default_idx = 0
-            for i, p in enumerate(sav_files):
-                if 'rf' in p.lower() and 'best' not in p.lower():
-                    default_idx = i
-                    break
-            model_path = st.selectbox(
-                "Pilih Model",
-                options=sav_files,
-                index=default_idx,
-                help="File .sav yang terdeteksi di repository"
-            )
-        else:
-            st.warning("⚠️ Tidak ada file .sav ditemukan di repository.")
-            model_path = st.text_input(
-                "Model Path (manual)",
-                value="brain_tumor_rf_glcm_model.sav",
-                help="Masukkan nama file model secara manual"
-            )
+        
+        model_path = st.text_input(
+            "Model Path",
+            value="models/brain_tumor_rf_glcm_model.sav",
+            help="Path to your trained Random Forest model (.pkl or .sav file)"
+        )
         
         st.markdown("---")
         
@@ -972,19 +923,15 @@ def main_app():
         st.markdown(f"*Version 2.0 - {datetime.now().year}*")
     
     # Load model
-    resolved_path = resolve_model_path(model_path)
-    if resolved_path is None:
-        st.error(f"❌ Model tidak ditemukan: `{model_path}`")
-        st.info("💡 Pastikan file .sav sudah di-upload ke repository GitHub.")
+    if os.path.exists(model_path):
+        model = load_model(model_path)
+        if model is None:
+            st.error("❌ Failed to load model. Please check the model file.")
+            return
+    else:
+        st.error(f"❌ Model file not found: {model_path}")
+        st.info("💡 Please update the model path in the sidebar settings.")
         return
-
-    model = load_model(model_path)
-    if model is None:
-        st.error("❌ Gagal load model. Coba pilih model lain di sidebar.")
-        return
-
-    with st.sidebar:
-        st.success(f"✅ Model aktif:\n`{os.path.basename(resolved_path)}`")
     
     # File uploader
     st.markdown("### 📤 UPLOAD BRAIN MRI SCANS")
